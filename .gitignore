@@ -1,0 +1,6 @@
+credentials.json
+token.json
+fatture_scaricate/
+__pycache__/
+*.pyc
+.env
