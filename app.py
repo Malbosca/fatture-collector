@@ -18,7 +18,6 @@ st.markdown('''
     .metric-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 1rem; text-align: center; color: white; margin-bottom: 2rem; }
     .metric-number { font-size: 3rem; font-weight: bold; }
     .metric-label { font-size: 1rem; opacity: 0.9; }
-    .warning-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; }
 </style>
 ''', unsafe_allow_html=True)
 
@@ -27,13 +26,10 @@ periodo = f"{INIZIO_PERIODO.strftime('%B %Y')}"
 st.markdown(f'<p class="subtitle">Periodo: {periodo}</p>', unsafe_allow_html=True)
 
 # Controllo avvisi fatture
-try:
-    avvisi = check_avvisi()
-    if avvisi:
-        for a in avvisi:
-            st.warning(f"**{a['nome']}**: {a['count']} fattura/e da scaricare manualmente!")
-except Exception as e:
-    pass
+avvisi = check_avvisi()
+if avvisi:
+    for a in avvisi:
+        st.warning(f"**{a['nome']}**: {a['count']} fattura/e da scaricare manualmente!")
 
 OUTPUT_DIR.mkdir(exist_ok=True)
 pdf_files = list(OUTPUT_DIR.glob("*.pdf"))

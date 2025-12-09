@@ -7,21 +7,7 @@ import sys
 sys.path.append(str(Path(__file__).parent.parent))
 from config import INIZIO_PERIODO, FINE_PERIODO
 
-try:
-    import streamlit as st
-    SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
-    creds = Credentials(
-        token=st.secrets['google']['token'],
-        refresh_token=st.secrets['google']['refresh_token'],
-        token_uri=st.secrets['google']['token_uri'],
-        client_id=st.secrets['google']['client_id'],
-        client_secret=st.secrets['google']['client_secret'],
-        scopes=SCOPES
-    )
-except:
-    from config import TOKEN_FILE
-    SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
-    creds = None
+SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
 AVVISI_FATTURE = [
     {"nome": "Amazon", "from": "donotreply@amazon.com", "subject": "La tua Fattura Elettronica Venditore Amazon.it per"},
@@ -30,10 +16,20 @@ AVVISI_FATTURE = [
 ]
 
 def get_service():
-    global creds
-    if creds is None:
+    try:
+        import streamlit as st
+        creds = Credentials(
+            token=st.secrets['google']['token'],
+            refresh_token=st.secrets['google']['refresh_token'],
+            token_uri=st.secrets['google']['token_uri'],
+            client_id=st.secrets['google']['client_id'],
+            client_secret=st.secrets['google']['client_secret'],
+            scopes=SCOPES
+        )
+    except:
         from config import TOKEN_FILE
         creds = Credentials.from_authorized_user_file(str(TOKEN_FILE), SCOPES)
+    
     if not creds.valid and creds.refresh_token:
         creds.refresh(Request())
     return build('gmail', 'v1', credentials=creds)
