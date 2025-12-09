@@ -4,6 +4,7 @@ from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email import encoders
 from pathlib import Path
+import shutil
 import sys
 sys.path.append(str(Path(__file__).parent))
 from config import OUTPUT_DIR, INIZIO_PERIODO, FINE_PERIODO
@@ -16,10 +17,19 @@ try:
 except:
     SMTP_EMAIL = "aziendamalbosca@gmail.com"
     SMTP_PASSWORD = "ieob mprw fhuj agpj"
-    EMAIL_COMMERCIALISTA = "emanuele.visigalli@gmail.com"
+    EMAIL_COMMERCIALISTA = "a.blogna@stcom.info"
 
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
+
+# Percorso archivio
+ARCHIVIO_BASE = Path.home() / "Documents" / "malbosca" / "1_FATTURE" / "FATTURE_estere"
+
+MESI_IT = {
+    1: "Gennaio", 2: "Febbraio", 3: "Marzo", 4: "Aprile",
+    5: "Maggio", 6: "Giugno", 7: "Luglio", 8: "Agosto",
+    9: "Settembre", 10: "Ottobre", 11: "Novembre", 12: "Dicembre"
+}
 
 def send():
     print("Sender")
@@ -35,7 +45,7 @@ def send():
     msg = MIMEMultipart()
     msg["From"] = SMTP_EMAIL
     msg["To"] = EMAIL_COMMERCIALISTA
-    msg["Subject"] = f"Fatture {INIZIO_PERIODO.strftime('%B %Y')}"
+    msg["Subject"] = f"Fatture {MESI_IT[INIZIO_PERIODO.month]} {INIZIO_PERIODO.year}"
     
     body = f"In allegato le fatture del periodo {INIZIO_PERIODO.strftime('%d/%m/%Y')} - {FINE_PERIODO.strftime('%d/%m/%Y')}"
     msg.attach(MIMEText(body, "plain"))
@@ -55,6 +65,16 @@ def send():
         server.send_message(msg)
     
     print(f"\nEmail inviata a {EMAIL_COMMERCIALISTA}")
+    
+    # Archivia: FATTURE_estere/2025/11_Novembre/
+    anno = str(INIZIO_PERIODO.year)
+    mese = f"{INIZIO_PERIODO.month:02d}_{MESI_IT[INIZIO_PERIODO.month]}"
+    archivio_dir = ARCHIVIO_BASE / anno / mese
+    archivio_dir.mkdir(parents=True, exist_ok=True)
+    
+    for pdf in pdf_files:
+        shutil.copy(pdf, archivio_dir / pdf.name)
+    print(f"Archiviati in: {archivio_dir}")
 
 if __name__ == "__main__":
     send()
