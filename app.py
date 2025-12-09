@@ -3,7 +3,6 @@ from pathlib import Path
 from collectors.gmail import collect as gmail_collect
 from sender import send
 from config import OUTPUT_DIR, INIZIO_PERIODO, FINE_PERIODO
-import webbrowser
 
 st.set_page_config(
     page_title="Fatture Collector", 
@@ -11,7 +10,6 @@ st.set_page_config(
     layout="centered"
 )
 
-# CSS custom
 st.markdown('''
 <style>
     .main-title {
@@ -42,30 +40,13 @@ st.markdown('''
         font-size: 1rem;
         opacity: 0.9;
     }
-    .stButton > button {
-        border-radius: 0.5rem;
-        padding: 0.75rem 1rem;
-        font-weight: 500;
-    }
-    .pdf-list {
-        background: #f8f9fa;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        margin-top: 1rem;
-    }
-    .pdf-item {
-        padding: 0.5rem;
-        border-bottom: 1px solid #eee;
-    }
 </style>
 ''', unsafe_allow_html=True)
 
-# Header
 st.markdown('<h1 class="main-title">Fatture Collector</h1>', unsafe_allow_html=True)
 periodo = f"{INIZIO_PERIODO.strftime('%B %Y')}"
 st.markdown(f'<p class="subtitle">Periodo: {periodo}</p>', unsafe_allow_html=True)
 
-# Conteggio PDF
 if OUTPUT_DIR.exists():
     pdf_files = list(OUTPUT_DIR.glob("*.pdf"))
     pdf_count = len(pdf_files)
@@ -73,7 +54,6 @@ else:
     pdf_files = []
     pdf_count = 0
 
-# Metric card
 st.markdown(f'''
 <div class="metric-card">
     <div class="metric-number">{pdf_count}</div>
@@ -81,7 +61,6 @@ st.markdown(f'''
 </div>
 ''', unsafe_allow_html=True)
 
-# Bottoni
 col1, col2 = st.columns(2)
 
 with col1:
@@ -95,16 +74,11 @@ with col1:
         st.rerun()
 
 with col2:
-    if st.button("Apri Dashboard", use_container_width=True):
-        urls = [
-            "https://dashboard.stripe.com/settings/documents",
-            "https://www.paypal.com/reports/statements",
-            "https://me.sumup.com/invoices",
-            "https://sellercentral.amazon.it/tax/seller-fee-invoices",
-        ]
-        for url in urls:
-            webbrowser.open(url)
-        st.info("Dashboard aperte nel browser!")
+    with st.popover("Apri Dashboard", use_container_width=True):
+        st.markdown("[Stripe](https://dashboard.stripe.com/settings/documents)")
+        st.markdown("[PayPal](https://www.paypal.com/reports/statements)")
+        st.markdown("[SumUp](https://me.sumup.com/invoices)")
+        st.markdown("[Amazon](https://sellercentral.amazon.it/tax/seller-fee-invoices)")
 
 st.markdown("<br>", unsafe_allow_html=True)
 
@@ -117,7 +91,6 @@ if st.button("INVIA AL COMMERCIALISTA", use_container_width=True, type="primary"
         st.success("Email inviata con successo!")
         st.balloons()
 
-# Lista PDF
 if pdf_count > 0:
     st.markdown("<br>", unsafe_allow_html=True)
     st.subheader("Documenti")
