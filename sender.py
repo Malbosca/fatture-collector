@@ -22,7 +22,6 @@ except:
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
 
-# Percorso archivio
 ARCHIVIO_BASE = Path.home() / "Documents" / "malbosca" / "1_FATTURE" / "FATTURE_estere"
 
 MESI_IT = {
@@ -66,7 +65,7 @@ def send():
     
     print(f"\nEmail inviata a {EMAIL_COMMERCIALISTA}")
     
-    # Archivia: FATTURE_estere/2025/11_Novembre/
+    # Archivia in locale
     anno = str(INIZIO_PERIODO.year)
     mese = f"{INIZIO_PERIODO.month:02d}_{MESI_IT[INIZIO_PERIODO.month]}"
     archivio_dir = ARCHIVIO_BASE / anno / mese
@@ -75,6 +74,11 @@ def send():
     for pdf in pdf_files:
         shutil.copy(pdf, archivio_dir / pdf.name)
     print(f"Archiviati in: {archivio_dir}")
+    
+    # Pulisci cartella
+    for pdf in pdf_files:
+        pdf.unlink()
+    print("Cartella pulita")
 
 if __name__ == "__main__":
     send()
