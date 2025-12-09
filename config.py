@@ -11,7 +11,7 @@ primo_mese_corrente = oggi.replace(day=1)
 INIZIO_PERIODO = (primo_mese_corrente - timedelta(days=1)).replace(day=1)
 FINE_PERIODO = primo_mese_corrente - timedelta(days=1)
 
-EMAIL_COMMERCIALISTA = "emanuele.visigalli@gmail.com"
+EMAIL_COMMERCIALISTA = "a.blogna@stcom.info"
 
 MITTENTI_FATTURE = [
     "contact@t.brevo.com",
