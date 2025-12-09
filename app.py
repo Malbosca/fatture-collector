@@ -25,12 +25,6 @@ st.markdown('<h1 class="main-title">Fatture Collector</h1>', unsafe_allow_html=T
 periodo = f"{INIZIO_PERIODO.strftime('%B %Y')}"
 st.markdown(f'<p class="subtitle">Periodo: {periodo}</p>', unsafe_allow_html=True)
 
-# Controllo avvisi fatture
-avvisi = check_avvisi()
-if avvisi:
-    for a in avvisi:
-        st.warning(f"**{a['nome']}**: {a['count']} fattura/e da scaricare manualmente!")
-
 OUTPUT_DIR.mkdir(exist_ok=True)
 pdf_files = list(OUTPUT_DIR.glob("*.pdf"))
 pdf_count = len(pdf_files)
@@ -42,7 +36,7 @@ st.markdown(f'''
 </div>
 ''', unsafe_allow_html=True)
 
-col1, col2 = st.columns(2)
+col1, col2, col3 = st.columns(3)
 
 with col1:
     if st.button("Scarica da Gmail", use_container_width=True):
@@ -54,6 +48,19 @@ with col1:
         st.rerun()
 
 with col2:
+    if st.button("Controlla Avvisi", use_container_width=True):
+        with st.spinner("Controllo..."):
+            try:
+                avvisi = check_avvisi()
+                if avvisi:
+                    for a in avvisi:
+                        st.warning(f"**{a['nome']}**: {a['count']} fattura/e da scaricare!")
+                else:
+                    st.info("Nessuna fattura in attesa")
+            except Exception as e:
+                st.error(f"Errore: {e}")
+
+with col3:
     with st.popover("Dashboard", use_container_width=True):
         st.markdown("[Stripe](https://dashboard.stripe.com/settings/documents)")
         st.markdown("[PayPal](https://www.paypal.com/reports/statements)")
