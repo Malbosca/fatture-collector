@@ -12,34 +12,11 @@ st.set_page_config(
 
 st.markdown('''
 <style>
-    .main-title {
-        text-align: center;
-        color: #2E7D32;
-        font-size: 2.5rem;
-        margin-bottom: 0;
-    }
-    .subtitle {
-        text-align: center;
-        color: #666;
-        font-size: 1rem;
-        margin-bottom: 2rem;
-    }
-    .metric-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        padding: 2rem;
-        border-radius: 1rem;
-        text-align: center;
-        color: white;
-        margin-bottom: 2rem;
-    }
-    .metric-number {
-        font-size: 3rem;
-        font-weight: bold;
-    }
-    .metric-label {
-        font-size: 1rem;
-        opacity: 0.9;
-    }
+    .main-title { text-align: center; color: #2E7D32; font-size: 2.5rem; margin-bottom: 0; }
+    .subtitle { text-align: center; color: #666; font-size: 1rem; margin-bottom: 2rem; }
+    .metric-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 1rem; text-align: center; color: white; margin-bottom: 2rem; }
+    .metric-number { font-size: 3rem; font-weight: bold; }
+    .metric-label { font-size: 1rem; opacity: 0.9; }
 </style>
 ''', unsafe_allow_html=True)
 
@@ -47,12 +24,9 @@ st.markdown('<h1 class="main-title">Fatture Collector</h1>', unsafe_allow_html=T
 periodo = f"{INIZIO_PERIODO.strftime('%B %Y')}"
 st.markdown(f'<p class="subtitle">Periodo: {periodo}</p>', unsafe_allow_html=True)
 
-if OUTPUT_DIR.exists():
-    pdf_files = list(OUTPUT_DIR.glob("*.pdf"))
-    pdf_count = len(pdf_files)
-else:
-    pdf_files = []
-    pdf_count = 0
+OUTPUT_DIR.mkdir(exist_ok=True)
+pdf_files = list(OUTPUT_DIR.glob("*.pdf"))
+pdf_count = len(pdf_files)
 
 st.markdown(f'''
 <div class="metric-card">
@@ -66,19 +40,26 @@ col1, col2 = st.columns(2)
 with col1:
     if st.button("Scarica da Gmail", use_container_width=True):
         with st.spinner("Scaricando fatture..."):
-            if OUTPUT_DIR.exists():
-                for f in OUTPUT_DIR.glob("*.pdf"):
-                    f.unlink()
+            for f in OUTPUT_DIR.glob("*.pdf"):
+                f.unlink()
             results = gmail_collect()
         st.success(f"Scaricati {len(results)} PDF!")
         st.rerun()
 
 with col2:
-    with st.popover("Apri Dashboard", use_container_width=True):
+    with st.popover("Dashboard", use_container_width=True):
         st.markdown("[Stripe](https://dashboard.stripe.com/settings/documents)")
         st.markdown("[PayPal](https://www.paypal.com/reports/statements)")
         st.markdown("[SumUp](https://me.sumup.com/invoices)")
         st.markdown("[Amazon](https://sellercentral.amazon.it/tax/seller-fee-invoices)")
+
+uploaded = st.file_uploader("Carica altri PDF", type="pdf", accept_multiple_files=True)
+if uploaded:
+    for file in uploaded:
+        filepath = OUTPUT_DIR / file.name
+        filepath.write_bytes(file.read())
+    st.success(f"Caricati {len(uploaded)} PDF!")
+    st.rerun()
 
 st.markdown("<br>", unsafe_allow_html=True)
 
