@@ -1,33 +1,34 @@
 import base64
 from pathlib import Path
 from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
+import streamlit as st
 
 import sys
 sys.path.append(str(Path(__file__).parent.parent))
-from config import (
-    CREDENTIALS_FILE, TOKEN_FILE, OUTPUT_DIR,
-    INIZIO_PERIODO, FINE_PERIODO, MITTENTI_FATTURE
-)
+from config import OUTPUT_DIR, INIZIO_PERIODO, FINE_PERIODO, MITTENTI_FATTURE
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 
 
 def get_gmail_service():
-    creds = None
-    if TOKEN_FILE.exists():
-        creds = Credentials.from_authorized_user_file(str(TOKEN_FILE), SCOPES)
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
+    if 'google' in st.secrets:
+        creds = Credentials(
+            token=st.secrets['google']['token'],
+            refresh_token=st.secrets['google']['refresh_token'],
+            token_uri=st.secrets['google']['token_uri'],
+            client_id=st.secrets['google']['client_id'],
+            client_secret=st.secrets['google']['client_secret'],
+            scopes=SCOPES
+        )
+        if not creds.valid:
             creds.refresh(Request())
-        else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                str(CREDENTIALS_FILE), SCOPES
-            )
-            creds = flow.run_local_server(port=0)
-        TOKEN_FILE.write_text(creds.to_json())
+    else:
+        from config import TOKEN_FILE
+        creds = Credentials.from_authorized_user_file(str(TOKEN_FILE), SCOPES)
+        if not creds.valid and creds.refresh_token:
+            creds.refresh(Request())
     return build('gmail', 'v1', credentials=creds)
 
 

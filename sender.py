@@ -6,12 +6,20 @@ from email import encoders
 from pathlib import Path
 import sys
 sys.path.append(str(Path(__file__).parent))
-from config import OUTPUT_DIR, EMAIL_COMMERCIALISTA, INIZIO_PERIODO, FINE_PERIODO
+from config import OUTPUT_DIR, INIZIO_PERIODO, FINE_PERIODO
+
+try:
+    import streamlit as st
+    SMTP_EMAIL = st.secrets['smtp']['email']
+    SMTP_PASSWORD = st.secrets['smtp']['password']
+    EMAIL_COMMERCIALISTA = st.secrets['commercialista']['email']
+except:
+    SMTP_EMAIL = "aziendamalbosca@gmail.com"
+    SMTP_PASSWORD = "ieob mprw fhuj agpj"
+    EMAIL_COMMERCIALISTA = "emanuele.visigalli@gmail.com"
 
 SMTP_SERVER = "smtp.gmail.com"
 SMTP_PORT = 587
-SMTP_EMAIL = "aziendamalbosca@gmail.com"
-SMTP_PASSWORD = "ieob mprw fhuj agpj"
 
 def send():
     print("Sender")
