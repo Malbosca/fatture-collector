@@ -1,6 +1,7 @@
 ﻿import streamlit as st
 from pathlib import Path
 from collectors.gmail import collect as gmail_collect
+from collectors.checker import check_avvisi
 from sender import send
 from config import OUTPUT_DIR, INIZIO_PERIODO, FINE_PERIODO
 
@@ -17,12 +18,22 @@ st.markdown('''
     .metric-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 2rem; border-radius: 1rem; text-align: center; color: white; margin-bottom: 2rem; }
     .metric-number { font-size: 3rem; font-weight: bold; }
     .metric-label { font-size: 1rem; opacity: 0.9; }
+    .warning-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1rem; }
 </style>
 ''', unsafe_allow_html=True)
 
 st.markdown('<h1 class="main-title">Fatture Collector</h1>', unsafe_allow_html=True)
 periodo = f"{INIZIO_PERIODO.strftime('%B %Y')}"
 st.markdown(f'<p class="subtitle">Periodo: {periodo}</p>', unsafe_allow_html=True)
+
+# Controllo avvisi fatture
+try:
+    avvisi = check_avvisi()
+    if avvisi:
+        for a in avvisi:
+            st.warning(f"**{a['nome']}**: {a['count']} fattura/e da scaricare manualmente!")
+except Exception as e:
+    pass
 
 OUTPUT_DIR.mkdir(exist_ok=True)
 pdf_files = list(OUTPUT_DIR.glob("*.pdf"))
@@ -52,6 +63,7 @@ with col2:
         st.markdown("[PayPal](https://www.paypal.com/reports/statements)")
         st.markdown("[SumUp](https://me.sumup.com/invoices)")
         st.markdown("[Amazon](https://sellercentral.amazon.it/tax/seller-fee-invoices)")
+        st.markdown("[Canva](https://www.canva.com/settings/purchase-history)")
 
 uploaded = st.file_uploader("Carica altri PDF", type="pdf", accept_multiple_files=True)
 if uploaded:
